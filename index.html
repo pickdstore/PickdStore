@@ -71,9 +71,7 @@
             <!-- Categories -->
             <div class="flex space-x-3 overflow-x-auto no-scrollbar justify-start md:justify-center" id="filter-container">
                 <button onclick="setCategory('all')" class="filter-btn active whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-black text-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" data-filter="all">All</button>
-                <button onclick="setCategory('tech')" class="filter-btn whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-black hover:text-black transition-all" data-filter="tech">Tech</button>
-                <button onclick="setCategory('home')" class="filter-btn whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-black hover:text-black transition-all" data-filter="home">Home Decor</button>
-                <button onclick="setCategory('beauty')" class="filter-btn whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-black hover:text-black transition-all" data-filter="beauty">Beauty</button>
+                <button onclick="setCategory('jewelery')" class="filter-btn whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-black hover:text-black transition-all" data-filter="jewelery">Jewelery</button>
             </div>
         </div>
     </div>
@@ -110,53 +108,11 @@
         // ==========================================
         const products = [
             {
-                category: 'tech',
-                title: 'Mechanical Keyboard',
-                price: '$129.99',
-                image: 'https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg?auto=compress&cs=tinysrgb&w=600',
-                link: '#'
-            },
-            {
-                category: 'home',
-                title: 'Ceramic Vase Set',
-                price: '$45.00',
-                image: 'https://images.pexels.com/photos/112811/pexels-photo-112811.jpeg?auto=compress&cs=tinysrgb&w=600',
-                link: '#'
-            },
-            {
-                category: 'beauty',
-                title: 'Hydrating Serum',
-                price: '$28.00',
-                image: 'https://images.pexels.com/photos/3373739/pexels-photo-3373739.jpeg?auto=compress&cs=tinysrgb&w=600',
-                link: '#'
-            },
-            {
-                category: 'tech',
-                title: 'Noise Cancelling Headphones',
-                price: '$299.00',
-                image: 'https://images.pexels.com/photos/3780681/pexels-photo-3780681.jpeg?auto=compress&cs=tinysrgb&w=600',
-                link: '#'
-            },
-            {
-                category: 'home',
-                title: 'Minimalist Desk Lamp',
-                price: '$65.00',
-                image: 'https://images.pexels.com/photos/1005058/pexels-photo-1005058.jpeg?auto=compress&cs=tinysrgb&w=600',
-                link: '#'
-            },
-            {
-                category: 'beauty',
-                title: 'Bamboo Brush Set',
-                price: '$35.00',
-                image: 'https://images.pexels.com/photos/4041392/pexels-photo-4041392.jpeg?auto=compress&cs=tinysrgb&w=600',
-                link: '#'
-            },
-            {
-                category: 'tech',
-                title: 'Leather Phone Case',
-                price: '$40.00',
-                image: 'https://images.pexels.com/photos/4158/apple-iphone-smartphone-desk.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: '#'
+                category: 'jewelery',
+                title: 'Yellow Chimes Earrings For Men Fashion',
+                price: '₹181',
+                image: 'https://lh3.googleusercontent.com/rd-gg-dl/ABS2GSlhSopidHMKsuP9Sky3CLSHoCJCHJM0iyeAK_TNLi7kKOd7qQRyJDHIQVNPMBAVE_gwADgP8UhSPomUT-jhOW9qDL1uskhrDx5KUgudOiocDTzhPLPQ9JT6JAN_QiZ5IS9P7hCVsr0yiO4uIS0YQIwGoS4URqdkaUERH8rTazw1gpn6TlA8dR79UPot3BSCQbRTranxMWczMziimfe1SL6Uc8zpnwpryFR0ZkRJ3penelpqc52BzzGnS04qtECNTatR9b5S5MRgC9kO-BSlpWyMQpi1-gufyjjTpQuDQO3WKup5jMSvCuPcRxYMDBooG1jIsod1eXzRb-hCVcJCqqOEBWMTnczc2UEfPF88cOnCm2txTVw0jY6SsvvB8Pd5Mt7rsSVFlxu6Veya7uP1hcFkbhqQNEpRimmkpBO1r8tDRmfe0Vf4u3etmlITZxnJ-0eSec1SeY59tTb9il2yxrMQscrsCQMat0jDZyKgztGIl6RrYcit8Ke0BQmezRhl50Hoq38fejJxPrU7JZRV82xtOyj5MnJzqTaxTNq3QKK2-KnuounI6ZMcj9SFWz8ABs_G9pizwKP-aQ0U6D9XzatBnEqWO0K-Vy_AdwSa_K-exYBC9x7cu0NrqKI1RMStgdhAI1Q8QLQoRqRyWaXLAFEsyWTxQFXFzSg1Ip2eTTvIYQplHKhYNfzinX5Xp4PsQuYHnQfE8HZgy6kSgc8TmoqzC19K7fF2wNajaDphp9yuy4uC6Rn9nrZYlh6kLgdsFFTj90uuX4jP5g7YjatgDqi-BtiiwEbXx-eHEoUODPNkVzWulDpZqIyshxZ3-PqrmIg0-4haXBER8Qv5XqnsCNOarPo0zj0PtPqqrPzm7BrPNTVo4U3cj66njhE3pNQlKzkR5RbLP1oEIMeYKdGubYwWD0Ne_KjQ2ugrWjR-691e_i4cg2aNfvQWqRLEiKw2xzG0oTPSYrdjgSAzHg-9LgoZBsMARp0Y3DtIcd6-3ITpp8Lf4naF-G9tsi7KMsIYK7a4yJu_tur8vCE41DPZCEUFgl3LXO8_DDQ5jfANG-am-O3xA82CWHvoGXpXZ0TFh38CUfJHi-KDqeISQQOfNy8XGCMOTRDADH6DXn5-B9Lkzs99ZIzCPObNYUaSSlZhKOujCWi8zZkAfQlyHbTgcVqzDxI2Ox1MWhXGvP09ZgOq13gQGteJxSpp_P8Dy0zf0acjd4Lqy2xo0erqNGeuvh8_rAYJ9lDiVpns94BtMq9esyeRnMWmVEDGkH4E3pO8_c8Z3wYBOoAu3Ou639xfpjAWcSE751ox9NK-62IpfgocpOPv16UZ0BIwmRXgknWAvpvWASufdDeN_k0J8viR55OSWFpNfElY3s73svvNtH-uSONnzDnxEPdc5dSXZip8WIMZWWeurQWN2Q=s1024-rj?auto=compress&cs=tinysrgb&w=600',
+                link: 'https://amzn.to/44GQCbU'
             }
             // To add a new product, just copy one of the blocks above, paste it here, and change the details.
         ];

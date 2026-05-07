@@ -1,21 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pickd. | @PickdStore</title>
+    <title>Pickd. | Premium Curation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f0f11',
+                        darkCard: '#1a1a1c',
+                        primary: '#000000',
+                        primaryDark: '#ffffff',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'toast-in': 'toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'toast-out': 'toastOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        toastIn: {
+                            '0%': { opacity: '0', transform: 'translateY(100%) scale(0.9)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                        },
+                        toastOut: {
+                            '0%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                            '100%': { opacity: '0', transform: 'translateY(10px) scale(0.95)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #FAFAFA;
-            color: #171717;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-        }
-        /* Hide scrollbar for category list */
+        
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -23,242 +51,394 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Masonry Fade In Animation */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+
+        /* Premium Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        
+        .dark .glass {
+            background: rgba(26, 26, 28, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .item-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+        }
+
+        /* Staggered Fade In Animation */
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: staggerFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes staggerFadeIn {
             to { opacity: 1; transform: translateY(0); }
         }
-        .item-overlay {
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-        }
+
         /* Modal Animation */
         .modal-enter {
-            animation: modalIn 0.3s ease-out forwards;
+            animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .modal-exit {
-            animation: modalOut 0.2s ease-in forwards;
-        }
+        
         @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes modalOut {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0; transform: scale(0.95); }
+        
+        /* Floating elements animation */
+        .float-anim {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* 3D Tilt Effect Base */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+        .tilt-card-inner {
+            transform: translateZ(30px);
         }
     </style>
 </head>
-<body class="antialiased min-h-screen pb-12 bg-[#FAFAFA]">
+<body class="antialiased min-h-screen pb-12 bg-[#FAFAFA] text-gray-900 dark:bg-darkBg dark:text-gray-100 transition-colors duration-500">
+
+    <!-- Top Navigation (Dark Mode Toggle) -->
+    <nav class="fixed top-0 right-0 p-6 z-50">
+        <button id="theme-toggle" class="p-3 rounded-full glass shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 group">
+            <!-- Sun icon -->
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-yellow-500 group-hover:rotate-45 transition-transform duration-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 3.22a1 1 0 011.415 0l.85.85a1 1 0 01-1.414 1.415l-.85-.85a1 1 0 010-1.415zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.07 16.485a1 1 0 01-1.415 0l-.85-.85a1 1 0 011.415-1.415l.85.85a1 1 0 010 1.415zM10 18a1 1 0 01-1-1v-1a1 1 0 112 0v1a1 1 0 01-1 1zm-4.22-3.22a1 1 0 01-1.415 0l-.85-.85a1 1 0 011.414-1.415l.85.85a1 1 0 010 1.415zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zm3.22-4.22a1 1 0 011.415 0l.85.85a1 1 0 01-1.414 1.415l-.85-.85a1 1 0 010-1.415zM10 5a5 5 0 100 10 5 5 0 000-10z"></path></svg>
+            <!-- Moon icon -->
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-gray-700 group-hover:-rotate-12 transition-transform duration-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+        </button>
+    </nav>
 
     <!-- Profile Header -->
-    <header class="pt-12 pb-6 px-6 text-center max-w-2xl mx-auto">
-        <div class="relative inline-block group cursor-pointer">
-            <img src="download.jfif?auto=compress&cs=tinysrgb&w=150" alt="Profile" class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-lg mx-auto transition-transform transform group-hover:scale-105">
-            <div class="absolute bottom-1 right-1 bg-black text-white p-1.5 rounded-full border-2 border-white">
+    <header class="pt-20 pb-8 px-6 text-center max-w-3xl mx-auto">
+        <div class="relative inline-block group cursor-pointer mb-6">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-500 float-anim"></div>
+            <img src="download.jfif?auto=compress&cs=tinysrgb&w=150" alt="Profile" class="relative w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-4 border-white dark:border-darkBg shadow-xl mx-auto transition-transform duration-500 transform group-hover:scale-105 z-10">
+            <div class="absolute bottom-1 right-2 bg-primary dark:bg-primaryDark text-white dark:text-primary p-2 rounded-full border-2 border-white dark:border-darkBg z-20 shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
             </div>
         </div>
-        <h1 class="text-3xl md:text-5xl font-bold mt-5 tracking-tight">Pickd.</h1>
-        <p class="text-gray-500 text-sm md:text-lg mt-3 font-medium">Curating the aesthetic essentials in tech, decor, and daily life. ✨</p>
-        
-        <!-- Social Icons (Commented out as per your version) -->
-        <!-- <div class="flex justify-center space-x-5 mt-5 text-gray-400">...</div> -->
+        <h1 class="text-4xl md:text-6xl font-bold font-serif tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400">Pickd.</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-base md:text-lg font-medium max-w-xl mx-auto leading-relaxed">Curating the aesthetic essentials in tech, decor, and daily life. Discover your next favorite thing. ✨</p>
     </header>
 
     <!-- Filters & Search -->
-    <div class="px-4 mb-8 sticky top-0 z-50 bg-[#FAFAFA]/95 backdrop-blur-md py-4 border-b border-gray-100 shadow-sm transition-all duration-300">
-        <div class="max-w-7xl mx-auto">
-            <!-- Search Bar -->
-            <div class="max-w-md mx-auto mb-4 relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    <div class="px-4 mb-10 sticky top-4 z-40 transition-all duration-300">
+        <div class="max-w-4xl mx-auto glass rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+            
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <!-- Search Bar -->
+                <div class="w-full md:w-1/3 relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="search-input" onkeyup="filterGrid()" placeholder="Search items..." class="block w-full pl-10 pr-3 py-3 rounded-full text-sm bg-gray-50/50 dark:bg-darkBg/50 border border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primaryDark transition-all">
                 </div>
-                <input type="text" id="search-input" onkeyup="filterGrid()" placeholder="Search your next favorite thing..." class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-full leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent sm:text-sm transition-shadow shadow-sm hover:shadow-md">
-            </div>
 
-            <!-- Categories -->
-            <div class="flex space-x-3 overflow-x-auto no-scrollbar justify-start md:justify-center" id="filter-container">
-                <button onclick="setCategory('all')" class="filter-btn active whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-black text-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" data-filter="all">All</button>
-                <button onclick="setCategory('jewelry')" class="filter-btn whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-black hover:text-black transition-all" data-filter="jewelry">Jewelry</button>
-                <button onclick="setCategory('mens-fashion')" class="filter-btn whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-black hover:text-black transition-all" data-filter="mens-fashion">Men's Fashion</button>
+                <!-- Categories Container -->
+                <div class="w-full md:w-2/3 flex space-x-2 overflow-x-auto no-scrollbar pb-1 md:pb-0" id="filter-container">
+                    <button onclick="setCategory('all')" class="filter-btn active whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 bg-primary text-white dark:bg-primaryDark dark:text-primary shadow-md transform hover:-translate-y-0.5" data-filter="all">All</button>
+                    <button onclick="setCategory('favorites')" class="filter-btn whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1.5" data-filter="favorites">
+                        <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                        Saved
+                    </button>
+                    <div class="w-px h-8 bg-gray-200 dark:bg-gray-700 mx-1 self-center hidden md:block"></div>
+                    <!-- Dynamic Category buttons injected here -->
+                    <div id="dynamic-categories" class="flex space-x-2"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Masonry Grid -->
-    <main class="px-4 max-w-7xl mx-auto min-h-[60vh]">
-        <div class="columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6" id="grid-container">
+    <main class="px-4 max-w-[1400px] mx-auto min-h-[60vh]">
+        <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6" id="grid-container">
             <!-- Items injected here by JS -->
         </div>
         
         <!-- No Results Message -->
-        <div id="no-results" class="hidden text-center py-20">
-            <p class="text-gray-400 text-lg">No matches found for your search.</p>
-            <button onclick="document.getElementById('search-input').value = ''; filterGrid();" class="mt-4 text-sm font-semibold text-black underline">Clear Search</button>
+        <div id="no-results" class="hidden text-center py-32 flex flex-col items-center justify-center">
+            <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="text-xl font-serif font-bold text-gray-900 dark:text-white mb-2">Nothing found</h3>
+            <p class="text-gray-500 dark:text-gray-400">We couldn't find any items matching your current filters.</p>
+            <button onclick="clearSearch()" class="mt-6 px-6 py-2.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Clear all filters</button>
         </div>
     </main>
 
-    <!-- Affiliate Disclosure & Footer -->
-    <footer class="mt-20 mb-10 text-center px-6 max-w-2xl mx-auto">
-        
+    <!-- Footer -->
+    <footer class="mt-32 mb-10 text-center px-6 max-w-2xl mx-auto">
         <!-- Feedback Button -->
-        <button onclick="openFeedback()" class="mb-8 px-6 py-2 bg-white border border-gray-200 rounded-full text-sm font-semibold text-gray-600 hover:border-black hover:text-black transition-all shadow-sm hover:shadow-md">
-            💌 Have suggestions? Send Feedback
+        <button onclick="openFeedback()" class="mb-12 px-8 py-3 glass rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primaryDark transition-all shadow-sm hover:shadow-lg hover:-translate-y-1 group">
+            <span class="inline-block group-hover:scale-110 transition-transform">✨</span> Have suggestions? Send Feedback
         </button>
 
-        <div class="w-12 h-1 bg-gray-200 mx-auto rounded-full mb-6"></div>
-        <p class="text-xs text-gray-400 leading-relaxed">
-            DISCLAIMER: Pickd. contains affiliate links. If you purchase a product through these links, we may receive a small commission at no extra cost to you. Thank you for supporting the curation!
+        <div class="w-12 h-1 bg-gray-200 dark:bg-gray-800 mx-auto rounded-full mb-8"></div>
+        <p class="text-xs text-gray-400 dark:text-gray-500 leading-relaxed font-medium">
+            DISCLAIMER: Pickd. contains affiliate links. If you purchase a product through these links, we may receive a small commission at no extra cost to you. Thank you for supporting the curation.
         </p>
-        <p class="text-xs text-gray-300 mt-4">&copy; 2025 Pickd. All rights reserved.</p>
+        <p id="footer-text" class="text-xs text-gray-300 dark:text-gray-600 mt-6 tracking-widest uppercase cursor-pointer select-none">&copy; 2026 Pickd. All rights reserved.</p>
     </footer>
 
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 p-4 rounded-full bg-primary text-white dark:bg-primaryDark dark:text-primary shadow-xl opacity-0 translate-y-10 transition-all duration-300 z-50 pointer-events-none hover:scale-110">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
     <!-- Feedback Modal -->
-    <div id="feedback-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeFeedback()"></div>
-
-        <div class="fixed inset-0 z-10 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg p-6 modal-enter">
-                    
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold leading-6 text-gray-900 font-serif" id="modal-title">Send Feedback</h3>
-                        <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeFeedback()">
-                            <span class="sr-only">Close</span>
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+    <div id="feedback-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeFeedback()"></div>
+        <div class="relative w-full max-w-md p-4 modal-enter">
+            <div class="relative bg-white dark:bg-darkCard rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+                <div class="px-6 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-darkBg/50">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white font-serif">Send Feedback</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 bg-white dark:bg-darkCard p-2 rounded-full shadow-sm hover:shadow transition-all" onclick="closeFeedback()">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="p-6 space-y-5">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">We love hearing from you! Let us know what you want to see next on Pickd.</p>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Name</label>
+                        <input type="text" id="feedback-name" class="block w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-darkBg text-gray-900 dark:text-white focus:border-primary dark:focus:border-primaryDark focus:ring-1 focus:ring-primary dark:focus:ring-primaryDark transition-colors p-3.5 text-sm outline-none" placeholder="Jane Doe">
                     </div>
-
-                    <div class="space-y-4">
-                        <p class="text-sm text-gray-500">We love hearing from you! Let us know what you want to see next on Pickd.</p>
-                        
-                        <div>
-                            <label for="feedback-name" class="block text-sm font-medium text-gray-700">Name</label>
-                            <input type="text" id="feedback-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm border p-2 bg-gray-50" placeholder="Your Name">
-                        </div>
-
-                        <div>
-                            <label for="feedback-message" class="block text-sm font-medium text-gray-700">Message</label>
-                            <textarea id="feedback-message" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm border p-2 bg-gray-50" placeholder="Your thoughts..."></textarea>
-                        </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Message</label>
+                        <textarea id="feedback-message" rows="4" class="block w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-darkBg text-gray-900 dark:text-white focus:border-primary dark:focus:border-primaryDark focus:ring-1 focus:ring-primary dark:focus:ring-primaryDark transition-colors p-3.5 text-sm outline-none resize-none" placeholder="I'd love to see more minimalist desk setups..."></textarea>
                     </div>
-
-                    <div class="mt-6">
-                        <button type="button" onclick="sendFeedback()" class="inline-flex w-full justify-center rounded-md bg-black px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black transition-colors">
+                    <div class="pt-2">
+                        <button type="button" onclick="sendFeedback()" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-primary hover:bg-gray-800 dark:bg-primaryDark dark:text-primary dark:hover:bg-gray-200 transition-all duration-300">
                             Send Message
                         </button>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Dashboard Modal -->
+    <div id="dashboard-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeDashboard()"></div>
+        <div class="relative w-full max-w-3xl p-4 modal-enter">
+            <div class="relative bg-white dark:bg-darkCard rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 flex flex-col max-h-[85vh]">
+                
+                <!-- Dashboard Header -->
+                <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-darkBg/50">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white font-serif">Admin Dashboard</h3>
+                    <div class="flex items-center gap-3">
+                        <button onclick="exportHTML()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-full transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export HTML
+                        </button>
+                        <button type="button" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 bg-white dark:bg-darkCard p-2 rounded-full shadow-sm hover:shadow transition-all" onclick="closeDashboard()">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-darkBg px-6 pt-3 gap-6">
+                    <button onclick="switchTab('suggestions')" id="tab-suggestions" class="pb-3 text-sm font-bold border-b-2 transition-colors border-primary text-gray-900 dark:border-primaryDark dark:text-white">Suggestions</button>
+                    <button onclick="switchTab('store')" id="tab-store" class="pb-3 text-sm font-bold border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400">Manage Store</button>
+                </div>
+
+                <!-- Content Area -->
+                <div class="p-6 overflow-y-auto flex-1 bg-white dark:bg-darkCard">
+                    <!-- Suggestions Tab -->
+                    <div id="content-suggestions" class="space-y-4">
+                        <div id="dashboard-content" class="space-y-3"></div>
+                        <div class="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 text-right">
+                            <button onclick="clearSuggestions()" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors">Clear Suggestions</button>
+                        </div>
+                    </div>
+
+                    <!-- Manage Store Tab -->
+                    <div id="content-store" class="hidden space-y-8">
+                        <!-- Add Category -->
+                        <div class="bg-gray-50 dark:bg-darkBg p-5 rounded-2xl border border-gray-100 dark:border-gray-800">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-wider">Add Category</h4>
+                            <div class="flex gap-3">
+                                <input type="text" id="new-cat-name" placeholder="Category Name (e.g. Watches)" class="flex-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard px-3 py-2 text-sm outline-none text-gray-900 dark:text-white">
+                                <input type="text" id="new-cat-id" placeholder="ID (e.g. watches)" class="flex-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard px-3 py-2 text-sm outline-none text-gray-900 dark:text-white">
+                                <button onclick="addCategory()" class="px-5 py-2 bg-primary text-white dark:bg-primaryDark dark:text-primary rounded-xl text-sm font-bold">Add</button>
+                            </div>
+                        </div>
+
+                        <!-- Add Product -->
+                        <div class="bg-gray-50 dark:bg-darkBg p-5 rounded-2xl border border-gray-100 dark:border-gray-800">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-wider">Add Product</h4>
+                            <div class="space-y-3">
+                                <input type="text" id="new-prod-title" placeholder="Product Title" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard px-3 py-2 text-sm outline-none text-gray-900 dark:text-white">
+                                <input type="text" id="new-prod-image" placeholder="Image URL" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard px-3 py-2 text-sm outline-none text-gray-900 dark:text-white">
+                                <div class="flex gap-3">
+                                    <input type="text" id="new-prod-link" placeholder="Affiliate Link" class="flex-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard px-3 py-2 text-sm outline-none text-gray-900 dark:text-white">
+                                    <select id="new-prod-cat" class="flex-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard px-3 py-2 text-sm outline-none text-gray-900 dark:text-white">
+                                        <!-- Options injected -->
+                                    </select>
+                                </div>
+                                <button onclick="addProduct()" class="w-full mt-2 py-2.5 bg-primary text-white dark:bg-primaryDark dark:text-primary rounded-xl text-sm font-bold transition-colors">Add Product to Store</button>
+                            </div>
+                        </div>
+
+                        <!-- Manage Existing Products -->
+                        <div class="bg-gray-50 dark:bg-darkBg p-5 rounded-2xl border border-gray-100 dark:border-gray-800 mt-6">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-wider">Manage Products</h4>
+                            <div id="dashboard-products-list" class="space-y-2 max-h-60 overflow-y-auto pr-2 no-scrollbar">
+                                <!-- Product list injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[110] flex flex-col gap-3 pointer-events-none"></div>
+
     <script>
         // ==========================================
-        // CONFIGURATION
+        // DATA ARRAYS (HARDCODED)
         // ==========================================
-        const yourEmail = "your-email@example.com"; // REPLACE THIS
-
-        // ==========================================
-        // PRODUCTS DATA
-        // ==========================================
-        const products = [
-            {
-                category: 'jewelry',
-                title: 'Yellow Chimes Earrings For Men Fashion',
-                image: 'https://i.ibb.co/HTZvNJ94/Gemini-Generated-Image-yabhniyabhniyabh.png?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/44GQCbU'
-            },
-            {
-                category: 'jewelry',
-                title: 'THE MEN THING SLEEK APEX - Pure Titanium Steel Silver Bar Pendant',
-                image: 'https://m.media-amazon.com/images/I/51RIWOhlYgL._SY535_.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/3Nb5cSP'
-            },
-            {
-                category: 'jewelry',
-                title: 'THE MEN THING VIKING AMULET NORSE - Pure Titanium Stainless Steel Ring Jewellery for Men',
-                image: 'https://m.media-amazon.com/images/I/41FoZ0lAJ6L._SY535_.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/4p7zaES'
-            },
-            {
-                category: 'mens-fashion',
-                title: 'CRAZYMONK Men’s Plain Acid Wash Oversized Hoodie',
-                image: 'https://m.media-amazon.com/images/I/71ucsgetgHL._SY741_.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/3Na3Zv2'
-            },
-            {
-                category: 'mens-fashion',
-                title: 'Imsa Moda Men’s Collar Chain Cotton Fleece Sweatshirt | Warm Hoodie for Gym, Travel & Casual Winter Wear',
-                image: 'https://m.media-amazon.com/images/I/51NUPvi9JfL._SY679_.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/4aZ4LVy'
-            },
-            {
-                category: 'sports',
-                title: 'Nivia Trainer Skipping Rope With Spring For Men, Women & Children, Jump Rope for Exercise, ',
-                image: 'https://m.media-amazon.com/images/I/614AKi6audL._SL1500_.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/49f7dpi'
-            },
-            {
-                category: 'sports',
-                title: 'Protoner Camo Cotton Boxing Punching Hand Wraps, 3 Meters',
-                image: 'https://m.media-amazon.com/images/I/71EIa3EnU+L._SL1371_.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/4faQoj0'
-            },
-            {
-                category: 'mens-fashion',
-                title: 'The Modern Soul Half Zipper Solid Hoodie for Men | Sweatshirt for Men',
-                image: 'https://m.media-amazon.com/images/I/41lWDU4V2ML.jpg?auto=compress&cs=tinysrgb&w=600',
-                link: 'https://amzn.to/44BRCht'
-            }
-            // Add more products here...
+        const defaultCategories = [
+            { id: 'jewelry', name: 'Jewelry' },
+            { id: 'mens-fashion', name: 'Apparel' },
+            { id: 'fitness', name: 'Fitness' }
         ];
 
-        // Global State
-        let currentCategory = 'all';
+        const products = [
+            { id: 'p1', category: 'jewelry', title: 'Yellow Chimes Earrings For Men Fashion', image: 'https://i.ibb.co/HTZvNJ94/Gemini-Generated-Image-yabhniyabhniyabh.png?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/44GQCbU' },
+            { id: 'p2', category: 'jewelry', title: 'SLEEK APEX - Pure Titanium Steel Silver Bar Pendant', image: 'https://m.media-amazon.com/images/I/51RIWOhlYgL._SY535_.jpg?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/3Nb5cSP' },
+            { id: 'p3', category: 'jewelry', title: 'VIKING AMULET NORSE - Titanium Stainless Steel Ring', image: 'https://m.media-amazon.com/images/I/41FoZ0lAJ6L._SY535_.jpg?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/4p7zaES' },
+            { id: 'p4', category: 'mens-fashion', title: 'CRAZYMONK Men’s Plain Acid Wash Oversized Hoodie', image: 'https://m.media-amazon.com/images/I/71ucsgetgHL._SY741_.jpg?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/3Na3Zv2' },
+            { id: 'p5', category: 'mens-fashion', title: 'Collar Chain Cotton Fleece Warm Hoodie Sweatshirt', image: 'https://m.media-amazon.com/images/I/51NUPvi9JfL._SY679_.jpg?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/4aZ4LVy' },
+            { id: 'p6', category: 'fitness', title: 'Trainer Skipping Rope With Spring For Exercise', image: 'https://m.media-amazon.com/images/I/614AKi6audL._SL1500_.jpg?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/49f7dpi' },
+            { id: 'p7', category: 'fitness', title: 'Camo Cotton Boxing Punching Hand Wraps', image: 'https://m.media-amazon.com/images/I/71EIa3EnU+L._SL1371_.jpg?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/4faQoj0' },
+            { id: 'p8', category: 'mens-fashion', title: 'The Modern Soul Half Zipper Solid Sweatshirt', image: 'https://m.media-amazon.com/images/I/41lWDU4V2ML.jpg?auto=compress&cs=tinysrgb&w=600', link: 'https://amzn.to/44BRCht' }
+        ];
 
-        // Function to render products
+        // ==========================================
+        // STATE MANAGEMENT
+        // ==========================================
+        let currentCategory = 'all';
+        let favorites = JSON.parse(localStorage.getItem('pickd_favorites')) || [];
+        
+        let customCategories = JSON.parse(localStorage.getItem('pickd_categories')) || [];
+        let customProducts = JSON.parse(localStorage.getItem('pickd_products')) || [];
+        let deletedProducts = JSON.parse(localStorage.getItem('pickd_deleted_products')) || [];
+
+        let allCategories = [...defaultCategories, ...customCategories];
+        let allProducts = [...products, ...customProducts].filter(p => !deletedProducts.includes(p.id));
+
+        // ==========================================
+        // RENDER LOGIC
+        // ==========================================
+        function renderCategories() {
+            const container = document.getElementById('dynamic-categories');
+            const selectOptions = document.getElementById('new-prod-cat');
+            
+            container.innerHTML = allCategories.map(cat => `
+                <button onclick="setCategory('${cat.id}')" class="filter-btn whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800" data-filter="${cat.id}">${cat.name}</button>
+            `).join('');
+
+            if(selectOptions) {
+                selectOptions.innerHTML = allCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+            }
+        }
+
         function loadProducts() {
             const container = document.getElementById('grid-container');
             
-            const html = products.map(product => `
-                <a href="${product.link}" target="_blank" rel="noopener noreferrer" class="product-item block break-inside-avoid relative group rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500" data-category="${product.category}">
-                    <img src="${product.image}" alt="${product.title}" loading="lazy" class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700">
-                    <div class="absolute inset-0 item-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
-                        <span class="inline-block px-2 py-1 bg-white/20 backdrop-blur-md rounded text-[10px] text-white font-bold uppercase tracking-wider mb-2 w-fit">${product.category}</span>
-                        <p class="product-title text-white font-bold text-lg leading-tight">${product.title}</p>
+            const html = allProducts.map((product, index) => {
+                const isFav = favorites.includes(product.id);
+                const favFill = isFav ? 'currentColor' : 'none';
+                const favColor = isFav ? 'text-red-500' : 'text-white';
+                const delay = (index % 10) * 100;
+                
+                // Get display category name
+                const catObj = allCategories.find(c => c.id === product.category);
+                const displayCat = catObj ? catObj.name : product.category;
+
+                return `
+                <a href="${product.link}" target="_blank" rel="noopener noreferrer" class="product-item block break-inside-avoid relative group rounded-[2rem] overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-sm hover:shadow-2xl transition-all duration-500 tilt-card stagger-item" style="animation-delay: ${delay}ms" data-category="${product.category}" data-id="${product.id}">
+                    <img src="${product.image}" alt="${product.title}" loading="lazy" class="w-full h-auto object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out tilt-card-inner">
+                    
+                    <!-- Top Actions -->
+                    <div class="absolute top-4 right-4 flex flex-col gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 translate-x-0 md:translate-x-4 group-hover:translate-x-0">
+                        <button onclick="toggleFavorite(event, '${product.id}')" class="p-2.5 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 transition-colors shadow-lg">
+                            <svg class="w-5 h-5 ${favColor} transition-colors" fill="${favFill}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        </button>
+                        <button onclick="shareProduct(event, '${product.title.replace(/'/g, "\\'")}', '${product.link}')" class="p-2.5 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 transition-colors shadow-lg text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Bottom Content Overlay -->
+                    <div class="absolute inset-0 item-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+                        <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] text-white font-bold uppercase tracking-wider mb-3 w-fit border border-white/20">${displayCat}</span>
+                            <p class="product-title text-white font-serif font-bold text-xl leading-tight mb-2 drop-shadow-md">${product.title}</p>
+                            <span class="inline-flex items-center text-xs text-white/80 font-medium">
+                                View Product <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </span>
+                        </div>
                     </div>
                 </a>
-            `).join('');
+                `;
+            }).join('');
 
             container.innerHTML = html;
+            
+            const items = document.querySelectorAll('.product-item');
+            items.forEach(item => {
+                item.style.animation = 'none';
+                item.offsetHeight; 
+                item.style.animation = null; 
+            });
         }
 
-        // Unified Filtering Logic
+        // ==========================================
+        // FILTERING
+        // ==========================================
         function filterGrid() {
             const searchQuery = document.getElementById('search-input').value.toLowerCase();
             const items = document.querySelectorAll('.product-item');
             let visibleCount = 0;
 
-            items.forEach(item => {
+            items.forEach((item) => {
                 const category = item.dataset.category;
                 const title = item.querySelector('.product-title').innerText.toLowerCase();
+                const productId = item.dataset.id;
                 
-                const matchesCategory = currentCategory === 'all' || category === currentCategory;
+                let matchesCategory = false;
+                if (currentCategory === 'all') matchesCategory = true;
+                else if (currentCategory === 'favorites') matchesCategory = favorites.includes(productId);
+                else matchesCategory = category === currentCategory;
+
                 const matchesSearch = title.includes(searchQuery);
 
                 if (matchesCategory && matchesSearch) {
                     item.style.display = 'block';
-                    item.classList.remove('fade-in');
-                    void item.offsetWidth; 
-                    item.classList.add('fade-in');
+                    item.style.animation = 'none';
+                    item.offsetHeight;
+                    item.style.animation = null;
                     visibleCount++;
                 } else {
                     item.style.display = 'none';
@@ -266,70 +446,402 @@
             });
 
             const noResults = document.getElementById('no-results');
-            if (visibleCount === 0) {
-                noResults.classList.remove('hidden');
-            } else {
-                noResults.classList.add('hidden');
-            }
+            if (visibleCount === 0) noResults.classList.remove('hidden');
+            else noResults.classList.add('hidden');
         }
 
         function setCategory(category) {
             currentCategory = category;
             const buttons = document.querySelectorAll('.filter-btn');
+            
             buttons.forEach(btn => {
+                const isFavBtn = btn.dataset.filter === 'favorites';
                 if (btn.dataset.filter === category) {
-                     btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
-                     btn.classList.add('bg-black', 'text-white', 'border-transparent', 'shadow-lg');
+                    if(isFavBtn) {
+                        btn.classList.remove('bg-transparent', 'text-gray-600', 'dark:text-gray-300');
+                        btn.classList.add('bg-red-50', 'text-red-600', 'dark:bg-red-900/30', 'dark:text-red-400');
+                    } else {
+                        btn.classList.remove('bg-transparent', 'text-gray-600', 'dark:text-gray-300');
+                        btn.classList.add('bg-primary', 'text-white', 'dark:bg-primaryDark', 'dark:text-primary', 'shadow-md');
+                    }
                 } else {
-                     btn.classList.remove('bg-black', 'text-white', 'border-transparent', 'shadow-lg');
-                     btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+                    if(isFavBtn) {
+                        btn.classList.add('bg-transparent', 'text-gray-600', 'dark:text-gray-300');
+                        btn.classList.remove('bg-red-50', 'text-red-600', 'dark:bg-red-900/30', 'dark:text-red-400');
+                    } else {
+                        btn.classList.add('bg-transparent', 'text-gray-600', 'dark:text-gray-300');
+                        btn.classList.remove('bg-primary', 'text-white', 'dark:bg-primaryDark', 'dark:text-primary', 'shadow-md');
+                    }
                 }
             });
             filterGrid();
         }
 
-        // ==========================================
-        // FEEDBACK LOGIC
-        // ==========================================
-        function openFeedback() {
-            document.getElementById('feedback-modal').classList.remove('hidden');
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            setCategory('all');
         }
 
-        function closeFeedback() {
-            document.getElementById('feedback-modal').classList.add('hidden');
+        // ==========================================
+        // DASHBOARD FUNCTIONS (ADMIN)
+        // ==========================================
+        let footerClickCount = 0;
+        let footerClickTimer;
+        
+        document.getElementById('footer-text').addEventListener('click', () => {
+            footerClickCount++;
+            clearTimeout(footerClickTimer);
+            if (footerClickCount >= 3) {
+                openDashboard();
+                footerClickCount = 0;
+            } else {
+                footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 1000);
+            }
+        });
+
+        function openDashboard() {
+            document.getElementById('dashboard-modal').classList.remove('hidden');
+            renderDashboardSuggestions();
+            renderCategories(); // update select options
+            renderDashboardProducts();
         }
 
-        function sendFeedback() {
-            const name = document.getElementById('feedback-name').value;
-            const message = document.getElementById('feedback-message').value;
+        function closeDashboard() {
+            document.getElementById('dashboard-modal').classList.add('hidden');
+        }
 
-            if(!message) {
-                alert("Please enter a message.");
+        function switchTab(tabId) {
+            document.getElementById('content-suggestions').classList.add('hidden');
+            document.getElementById('content-store').classList.add('hidden');
+            document.getElementById('tab-suggestions').classList.replace('border-primary', 'border-transparent');
+            document.getElementById('tab-suggestions').classList.replace('dark:border-primaryDark', 'border-transparent');
+            document.getElementById('tab-suggestions').classList.replace('text-gray-900', 'text-gray-500');
+            document.getElementById('tab-suggestions').classList.replace('dark:text-white', 'dark:text-gray-400');
+            
+            document.getElementById('tab-store').classList.replace('border-primary', 'border-transparent');
+            document.getElementById('tab-store').classList.replace('dark:border-primaryDark', 'border-transparent');
+            document.getElementById('tab-store').classList.replace('text-gray-900', 'text-gray-500');
+            document.getElementById('tab-store').classList.replace('dark:text-white', 'dark:text-gray-400');
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            activeTab.classList.replace('border-transparent', 'border-primary');
+            activeTab.classList.add('dark:border-primaryDark');
+            activeTab.classList.replace('text-gray-500', 'text-gray-900');
+            activeTab.classList.replace('dark:text-gray-400', 'dark:text-white');
+        }
+
+        function addCategory() {
+            const name = document.getElementById('new-cat-name').value;
+            const id = document.getElementById('new-cat-id').value;
+            if(!name || !id) return showToast('Fill all category fields', '⚠️');
+            
+            customCategories.push({ id, name });
+            localStorage.setItem('pickd_categories', JSON.stringify(customCategories));
+            allCategories = [...defaultCategories, ...customCategories];
+            
+            renderCategories();
+            showToast('Category added', '✅');
+            document.getElementById('new-cat-name').value = '';
+            document.getElementById('new-cat-id').value = '';
+        }
+
+        function addProduct() {
+            const title = document.getElementById('new-prod-title').value;
+            const image = document.getElementById('new-prod-image').value;
+            const link = document.getElementById('new-prod-link').value;
+            const category = document.getElementById('new-prod-cat').value;
+            
+            if(!title || !image || !link || !category) return showToast('Fill all product fields', '⚠️');
+            
+            const newProduct = { id: 'p' + Date.now(), category, title, image, link };
+            customProducts.push(newProduct);
+            localStorage.setItem('pickd_products', JSON.stringify(customProducts));
+            allProducts = [...products, ...customProducts].filter(p => !deletedProducts.includes(p.id));
+            
+            loadProducts();
+            filterGrid();
+            renderDashboardProducts();
+            showToast('Product added', '✅');
+            
+            document.getElementById('new-prod-title').value = '';
+            document.getElementById('new-prod-image').value = '';
+            document.getElementById('new-prod-link').value = '';
+        }
+
+        function renderDashboardProducts() {
+            const container = document.getElementById('dashboard-products-list');
+            if(!container) return;
+
+            if (allProducts.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500">No products found.</p>';
                 return;
             }
 
-            const subject = encodeURIComponent("Feedback for Pickd.");
-            const body = encodeURIComponent(`Name: ${name}\n\nMessage:\n${message}`);
-            
-            // Replaced window.location.href with a temporary link click for better reliability
-            const mailtoUrl = `mailto:${yourEmail}?subject=${subject}&body=${body}`;
-            const link = document.createElement('a');
-            link.href = mailtoUrl;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            closeFeedback();
+            container.innerHTML = allProducts.map(p => {
+                return `
+                <div class="flex items-center justify-between p-2 bg-white dark:bg-darkCard rounded-xl border border-gray-100 dark:border-gray-800">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <img src="${p.image}" class="w-10 h-10 rounded-md object-cover flex-shrink-0" alt="product">
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-gray-900 dark:text-white truncate">${p.title}</p>
+                            <p class="text-[10px] text-gray-500 uppercase">${p.category}</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteProduct('${p.id}')" class="p-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </div>`;
+            }).join('');
         }
 
-        // Initialize grid on load
-        document.addEventListener('DOMContentLoaded', () => {
+        function deleteProduct(id) {
+            if(!confirm('Are you sure you want to remove this product?')) return;
+            
+            // Check if it's a custom product
+            const customIndex = customProducts.findIndex(p => p.id === id);
+            if (customIndex !== -1) {
+                customProducts.splice(customIndex, 1);
+                localStorage.setItem('pickd_products', JSON.stringify(customProducts));
+            } else {
+                // It's a hardcoded product, add to deleted array
+                deletedProducts.push(id);
+                localStorage.setItem('pickd_deleted_products', JSON.stringify(deletedProducts));
+            }
+
+            // Recalculate and re-render
+            allProducts = [...products, ...customProducts].filter(p => !deletedProducts.includes(p.id));
             loadProducts();
-            document.querySelectorAll('.product-item').forEach(item => item.classList.add('fade-in'));
+            filterGrid();
+            renderDashboardProducts();
+            showToast('Product removed', '🗑️');
+        }
+
+
+        async function exportHTML() {
+            try {
+                // Clone document to avoid modifying live page
+                const clone = document.cloneNode(true);
+                
+                // Clean up state
+                const modal = clone.getElementById('dashboard-modal');
+                if (modal) modal.classList.add('hidden');
+                
+                const feedback = clone.getElementById('feedback-modal');
+                if (feedback) feedback.classList.add('hidden');
+                
+                const toastContainer = clone.getElementById('toast-container');
+                if (toastContainer) toastContainer.innerHTML = '';
+                
+                const grid = clone.getElementById('grid-container');
+                if (grid) grid.innerHTML = '';
+                
+                const dynCat = clone.getElementById('dynamic-categories');
+                if (dynCat) dynCat.innerHTML = '';
+                
+                const filterBtns = clone.querySelectorAll('.filter-btn');
+                filterBtns.forEach(btn => {
+                    if(btn.dataset.filter === 'all') {
+                        btn.className = "filter-btn active whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 bg-primary text-white dark:bg-primaryDark dark:text-primary shadow-md transform hover:-translate-y-0.5";
+                    } else if (btn.dataset.filter === 'favorites') {
+                        btn.className = "filter-btn whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1.5";
+                    } else {
+                         btn.className = "filter-btn whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800";
+                    }
+                });
+
+                const searchInput = clone.getElementById('search-input');
+                if(searchInput) searchInput.removeAttribute('value');
+
+                // Get HTML string
+                let html = '<!DOCTYPE html>\n' + clone.documentElement.outerHTML;
+
+                // Replace arrays
+                const catStr = "const defaultCategories = " + JSON.stringify(allCategories, null, 12) + ";";
+                const prodStr = "const products = " + JSON.stringify(allProducts, null, 12) + ";";
+                
+                html = html.replace(/const defaultCategories = \[[\s\S]*?\];/, catStr);
+                html = html.replace(/const products = \[[\s\S]*?\];/, prodStr);
+
+                // Download
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pickd_updated.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Exported index.html successfully!', '✅');
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to export HTML', '⚠️');
+            }
+        }
+
+        // ==========================================
+        // SUGGESTIONS & MISC
+        // ==========================================
+        function renderDashboardSuggestions() {
+            const suggestions = JSON.parse(localStorage.getItem('pickd_suggestions')) || [];
+            const container = document.getElementById('dashboard-content');
+            if (suggestions.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No suggestions yet.</p>';
+                return;
+            }
+            container.innerHTML = suggestions.reverse().map(item => `
+                <div class="bg-gray-50 dark:bg-darkBg p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-bold text-sm text-gray-900 dark:text-white">${item.name}</span>
+                        <span class="text-xs text-gray-500">${item.date}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${item.message}</p>
+                </div>
+            `).join('');
+        }
+
+        function clearSuggestions() {
+            if(confirm("Clear all suggestions?")) {
+                localStorage.removeItem('pickd_suggestions');
+                renderDashboardSuggestions();
+                showToast('Cleared', '🗑️');
+            }
+        }
+
+        function openFeedback() { document.getElementById('feedback-modal').classList.remove('hidden'); }
+        function closeFeedback() { document.getElementById('feedback-modal').classList.add('hidden'); }
+
+        function sendFeedback() {
+            const name = document.getElementById('feedback-name').value;
+            const msg = document.getElementById('feedback-message').value;
+            if(!msg) return showToast('Please enter a message.', '⚠️');
+
+            const suggestions = JSON.parse(localStorage.getItem('pickd_suggestions')) || [];
+            suggestions.push({ name: name || 'Anonymous', message: msg, date: new Date().toLocaleString() });
+            localStorage.setItem('pickd_suggestions', JSON.stringify(suggestions));
+            
+            closeFeedback();
+            showToast('Thank you for your feedback!', '🎉');
+            document.getElementById('feedback-name').value = '';
+            document.getElementById('feedback-message').value = '';
+        }
+
+        function toggleFavorite(event, productId) {
+            event.preventDefault();
+            event.stopPropagation();
+            const index = favorites.indexOf(productId);
+            const btn = event.currentTarget;
+            const icon = btn.querySelector('svg');
+
+            if (index === -1) {
+                favorites.push(productId);
+                icon.setAttribute('fill', 'currentColor');
+                icon.classList.replace('text-white', 'text-red-500');
+                showToast('Added to favorites', '❤️');
+            } else {
+                favorites.splice(index, 1);
+                icon.setAttribute('fill', 'none');
+                icon.classList.replace('text-red-500', 'text-white');
+                showToast('Removed from favorites', '💔');
+                if (currentCategory === 'favorites') filterGrid();
+            }
+            localStorage.setItem('pickd_favorites', JSON.stringify(favorites));
+        }
+
+        async function shareProduct(event, title, link) {
+            event.preventDefault();
+            event.stopPropagation();
+            try {
+                await navigator.clipboard.writeText(link);
+                showToast('Affiliate link copied!', '🔗');
+            } catch (err) {
+                const textArea = document.createElement("textarea");
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try { document.execCommand('copy'); showToast('Affiliate link copied!', '🔗'); }
+                catch (err) { showToast('Failed to copy', '⚠️'); }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function showToast(message, icon = '✨') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'glass px-5 py-3 rounded-full shadow-lg flex items-center gap-3 animate-toast-in pointer-events-auto';
+            toast.innerHTML = `<span class="text-lg">${icon}</span><span class="text-sm font-semibold text-gray-900 dark:text-white">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.replace('animate-toast-in', 'animate-toast-out');
+                setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 300);
+            }, 3000);
+        }
+
+        // Theme and Scroll Initialization
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+        function updateThemeIcons() {
+            if (document.documentElement.classList.contains('dark')) {
+                darkIcon.classList.add('hidden'); lightIcon.classList.remove('hidden');
+            } else {
+                lightIcon.classList.add('hidden'); darkIcon.classList.remove('hidden');
+            }
+        }
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        updateThemeIcons();
+
+        themeToggleBtn.addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            updateThemeIcons();
         });
 
-    </script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollToTopBtn');
+            if (window.scrollY > 300) {
+                btn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                btn.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            } else {
+                btn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                btn.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            }
+        });
 
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategories();
+            loadProducts();
+            
+            // Re-apply current category highlighting
+            setCategory(currentCategory);
+            
+            if (window.matchMedia("(min-width: 768px)").matches) {
+                document.getElementById('grid-container').addEventListener('mousemove', (e) => {
+                    const card = e.target.closest('.tilt-card');
+                    if (!card) return;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -5;
+                    const rotateY = ((x - centerX) / centerX) * 5;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
+                document.getElementById('grid-container').addEventListener('mouseout', (e) => {
+                    const card = e.target.closest('.tilt-card');
+                    if (!card) return;
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+                });
+            }
+        });
+    </script>
 </body>
 </html>
